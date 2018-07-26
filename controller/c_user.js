@@ -1,14 +1,7 @@
-var mysql = require('mysql')
-
-// 配置mysql
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : 'root',
-    database : 'newsql'
-  });
+const connection = require('../tools/db_config')
+const M_user = require('../models/m_user')
 //   开启数据库连接
-  connection.connect();
+//   connection.connect();
 // 登录页面渲染
 exports.showLogin = (req,res)=>{
     
@@ -17,13 +10,15 @@ exports.showLogin = (req,res)=>{
 // 表单请求验证
 exports.requestLogin = (req,res)=>{
     const body = req.body;
-    const sqlstr = 'SELECT * FROM `users` WHERE `email`=?'
-    connection.query(sqlstr,body.email ,(err,results)=>{
+    // data是个对象
+    M_user.jyFrom(body.email,function (err,results){
         if(err){
-            throw err
+            return res.send({
+                code:500,
+                message:err
+            })  
+
         }
-        console.log(results) 
-        // 邮箱输入不正确 result是个空数组  
         if(!results[0]){
             return res.send({
                 code:2,
@@ -43,4 +38,5 @@ exports.requestLogin = (req,res)=>{
             message:'用户登录成功'
         })
     })
+
 }
